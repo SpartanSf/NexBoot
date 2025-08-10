@@ -22,7 +22,7 @@ boot:meta.lua
 ### Metadata File Structure
 
 The metadata file informs NexBoot of the essential details required to identify and launch your OS.
-A minimal example is shown below:
+A basic example is shown below:
 
 ```lua
 {
