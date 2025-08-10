@@ -40,7 +40,7 @@ A minimal example is shown below:
 
 ### Example Appearance
 
-When properly configured, the metadata file produces an entry in NexBoot’s menu, as illustrated below:
+When properly configured, the metadata file produces an entry in NexBoot’s menu, as shown below:
 <img width="399" height="27" alt="image" src="https://github.com/user-attachments/assets/5bf84d18-5111-426e-b212-a8c7a5f5f35e" />
 
 ---
