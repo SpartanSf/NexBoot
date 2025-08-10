@@ -254,7 +254,7 @@ local function drawChar(start_x, baseline_y, encoding)
 end
 
 
-local function writeScr(str)
+function _G.writeScr(str)
     for i = 1, #str do
         local c_char = str:sub(i, i)
         if c_char == "\n" then
@@ -484,3 +484,4 @@ else -- chip.shutdown misbehaves sometimes, can't trust it to shut down before t
     if err then print(err) end
     metaFunc()
 end
+
