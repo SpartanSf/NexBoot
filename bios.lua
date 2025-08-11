@@ -212,7 +212,10 @@ local scr_x, _ = screen.getSize()
 
 screen.setColor(255, 255, 255)
 
-local function drawChar(start_x, baseline_y, encoding)
+local function drawChar(start_x, baseline_y, encoding, fgColor, bgColor)
+    screen.setColor(bgColor[1], bgColor[2], bgColor[3])
+    screen.fill(start_x, baseline_y, start_x + 8, baseline_y + 8)
+    screen.setColor(fgColor[1], fgColor[2], fgColor[3])
     start_x = start_x + 1
     baseline_y = baseline_y + 8
     local glyph = glyphs[encoding]
@@ -254,14 +257,20 @@ end
 
 _G.NexB = {}
 
-function _G.NexB.writeScr(str)
+function _G.NexB.writeScr(str, fgColor, bgColor)
     for i = 1, #str do
         local c_char = str:sub(i, i)
         if c_char == "\n" then
             cursor_x = 0
             cursor_y = cursor_y + 8
+        elseif c_char == "\t" then
+            cursor_x = cursor_x + 32
+            if cursor_x >= scr_x then
+                cursor_x = math.floor((cursor_x/8) - (scr_x/8)) * 8
+                cursor_y = cursor_y + 8
+            end
         else
-            drawChar(cursor_x, cursor_y, string.byte(c_char))
+            drawChar(cursor_x, cursor_y, string.byte(c_char), fgColor or {255, 255, 255}, bgColor or {0, 0, 0})
             cursor_x = cursor_x + 8
             if cursor_x >= scr_x then
                 cursor_x = 0
@@ -381,7 +390,7 @@ function _G.NexB.getInput()
             if v[1] == "keyPressed" then
                 local success, result = pcall(string.byte, v[3])
                 result = tonumber(result)
-                if v[2] and v[2] < 127 and v[2] > 31 then NexB.writeScr(asciiShift(result or v[2], shifting)); table.insert(inputBuffer, asciiShift(result or v[2], shifting))
+                if v[2] and v[2] < 127 and v[2] > 31 or v[2] == 9 then NexB.writeScr(asciiShift(result or v[2], shifting)); table.insert(inputBuffer, asciiShift(result or v[2], shifting))
                 elseif v[2] == 14 then shifting = true
                 elseif v[2] == 13 then tobreak = true
                 elseif v[2] == 8 then
@@ -429,6 +438,14 @@ else -- chip.shutdown misbehaves sometimes, can't trust it to shut down before t
         end
         NexB.writeScr("\n")
     end
+
+    local scr_w, scr_h = screen.getSize()
+    screen.setColor(0,0,0)
+    screen.fill(0,0,scr_w,scr_h)
+    screen.setColor(255,255,255)
+
+    cursor_x = 0
+    cursor_y = 0
 
     local entrypoint = fs.open(bootOptions[bootSelected][3], "r")
     local entrypointData = entrypoint.read("a")
