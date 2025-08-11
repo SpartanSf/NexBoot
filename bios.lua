@@ -7,6 +7,10 @@ local serpentFile = fs.open("bios:serpent.lua", "r")
 local serpent = load(serpentFile.read("a"), "serpent", "t", _ENV)()
 serpentFile.close()
 
+local nScreen = {}
+for k,v in pairs(screen) do nScreen[k] = v end
+local screen = nScreen
+
 local function parse_bdf(filename)
     local glyphs = {}
     local file = assert(fs.open(filename, "r"))
@@ -214,7 +218,7 @@ screen.setColor(255, 255, 255)
 
 local function drawChar(start_x, baseline_y, encoding, fgColor, bgColor)
     screen.setColor(bgColor[1], bgColor[2], bgColor[3])
-    screen.fill(start_x, baseline_y, start_x + 8, baseline_y + 8)
+    screen.fill(start_x + 1, baseline_y + 1, start_x + 8, baseline_y + 8)
     screen.setColor(fgColor[1], fgColor[2], fgColor[3])
     start_x = start_x + 1
     baseline_y = baseline_y + 8
@@ -278,7 +282,6 @@ function _G.NexB.writeScr(str, fgColor, bgColor)
             end
         end
     end
-    screen.draw()
 end
 
 function _G.NexB.setCursorPos(x, y)
@@ -409,6 +412,7 @@ function _G.NexB.getInput()
                         screen.setColor(255,255,255)
                     end
                 end
+                screen.draw()
             elseif v[1] == "keyReleased" then
                 if v[2] == 14 then shifting = false end
             end
@@ -418,18 +422,24 @@ function _G.NexB.getInput()
     return table.concat(inputBuffer)
 end
 
+screen.draw()
+
 if #bootOptions == 0 then
 	NexB.writeScr("Could not find an operating system!\nShutting down in 3 seconds.")
+    screen.draw()
     sleep(1)
     NexB.writeScr(".")
+    screen.draw()
     sleep(1)
     NexB.writeScr(".")
+    screen.draw()
     sleep(1)
     chip.shutdown()
 else -- chip.shutdown misbehaves sometimes, can't trust it to shut down before this gets executed
     local bootSelected = nil
     while true do
         NexB.writeScr(">")
+        screen.draw()
         local user_input = NexB.getInput()
         local success, result = pcall(tonumber, user_input)
         if success and result ~= nil and result <= #bootOptions then
@@ -443,6 +453,7 @@ else -- chip.shutdown misbehaves sometimes, can't trust it to shut down before t
     screen.setColor(0,0,0)
     screen.fill(0,0,scr_w,scr_h)
     screen.setColor(255,255,255)
+    screen.draw()
 
     cursor_x = 0
     cursor_y = 0
