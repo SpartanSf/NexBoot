@@ -305,158 +305,89 @@ for i, bootOption in ipairs(bootOptions) do
     NexB.writeScr(tostring(i)..") "..bootOption[1]..": "..bootOption[2].."\n")
 end
 
+local eventBuffer = {}
 
-local GLFW_KEY_SPACE           = 32
-local GLFW_KEY_APOSTROPHE      = 39
-local GLFW_KEY_COMMA           = 44
-local GLFW_KEY_MINUS           = 45
-local GLFW_KEY_PERIOD          = 46
-local GLFW_KEY_SLASH           = 47
-local GLFW_KEY_0               = 48
-local GLFW_KEY_1               = 49
-local GLFW_KEY_2               = 50
-local GLFW_KEY_3               = 51
-local GLFW_KEY_4               = 52
-local GLFW_KEY_5               = 53
-local GLFW_KEY_6               = 54
-local GLFW_KEY_7               = 55
-local GLFW_KEY_8               = 56
-local GLFW_KEY_9               = 57
-local GLFW_KEY_SEMICOLON       = 59
-local GLFW_KEY_EQUAL           = 61
-local GLFW_KEY_A               = 65
-local GLFW_KEY_B               = 66
-local GLFW_KEY_C               = 67
-local GLFW_KEY_D               = 68
-local GLFW_KEY_E               = 69
-local GLFW_KEY_F               = 70
-local GLFW_KEY_G               = 71
-local GLFW_KEY_H               = 72
-local GLFW_KEY_I               = 73
-local GLFW_KEY_J               = 74
-local GLFW_KEY_K               = 75
-local GLFW_KEY_L               = 76
-local GLFW_KEY_M               = 77
-local GLFW_KEY_N               = 78
-local GLFW_KEY_O               = 79
-local GLFW_KEY_P               = 80
-local GLFW_KEY_Q               = 81
-local GLFW_KEY_R               = 82
-local GLFW_KEY_S               = 83
-local GLFW_KEY_T               = 84
-local GLFW_KEY_U               = 85
-local GLFW_KEY_V               = 86
-local GLFW_KEY_W               = 87
-local GLFW_KEY_X               = 88
-local GLFW_KEY_Y               = 89
-local GLFW_KEY_Z               = 90
-local GLFW_KEY_LEFT_BRACKET    = 91
-local GLFW_KEY_BACKSLASH       = 92
-local GLFW_KEY_RIGHT_BRACKET   = 93
-local GLFW_KEY_GRAVE_ACCENT    = 96
-local GLFW_KEY_ENTER           = 257
-local GLFW_KEY_TAB             = 258
-local GLFW_KEY_BACKSPACE       = 259
-local GLFW_KEY_ESCAPE          = 256
+event.registerEvent(function(a, b, c)
+    table.insert(eventBuffer, {a, b, c})
+end)
 
-local glfw_punct = {
-    [GLFW_KEY_APOSTROPHE]    = "'",
-    [GLFW_KEY_COMMA]         = ",",
-    [GLFW_KEY_MINUS]         = "-",
-    [GLFW_KEY_PERIOD]        = ".",
-    [GLFW_KEY_SLASH]         = "/",
-    [GLFW_KEY_SEMICOLON]     = ";",
-    [GLFW_KEY_EQUAL]         = "=",
-    [GLFW_KEY_LEFT_BRACKET]  = "[",
-    [GLFW_KEY_BACKSLASH]     = "\\",
-    [GLFW_KEY_RIGHT_BRACKET] = "]",
-    [GLFW_KEY_GRAVE_ACCENT]  = "`",
-}
+local function asciiShift(ascii_val, shift)
+    local char = string.char(ascii_val)
 
-local shifted_numbers = {
-    [GLFW_KEY_1] = "!",
-    [GLFW_KEY_2] = "@",
-    [GLFW_KEY_3] = "#",
-    [GLFW_KEY_4] = "$",
-    [GLFW_KEY_5] = "%",
-    [GLFW_KEY_6] = "^",
-    [GLFW_KEY_7] = "&",
-    [GLFW_KEY_8] = "*",
-    [GLFW_KEY_9] = "(",
-    [GLFW_KEY_0] = ")",
-}
-
-local shifted_punct = {
-    ["'"] = "\"",
-    [","] = "<",
-    ["-"] = "_",
-    ["."] = ">",
-    ["/"] = "?",
-    [";"] = ":",
-    ["="] = "+",
-    ["["] = "{",
-    ["\\"] = "|",
-    ["]"] = "}",
-    ["`"] = "~",
-}
-
-local function glfw2ascii(keycode, shift_pressed)
-    if keycode >= GLFW_KEY_A and keycode <= GLFW_KEY_Z then
-        local base = shift_pressed and 65 or 97
-        return string.char(base + (keycode - GLFW_KEY_A))
-    end
-
-    if keycode >= GLFW_KEY_0 and keycode <= GLFW_KEY_9 then
-        if shift_pressed then
-            return shifted_numbers[keycode]
+    if ascii_val >= 97 and ascii_val <= 122 then
+        if shift then
+            return string.char(ascii_val - 32)
         else
-            return string.char(keycode)
+            return char
+        end
+    elseif ascii_val >= 65 and ascii_val <= 90 then
+        if shift then
+            return char
+        else
+            return string.char(ascii_val + 32)
         end
     end
 
-    if keycode == GLFW_KEY_SPACE then
-        return ' '
-    end
+    local number_shift_map = {
+        [48] = ")", -- 0
+        [49] = "!", -- 1
+        [50] = "@", -- 2
+        [51] = "#", -- 3
+        [52] = "$", -- 4
+        [53] = "%", -- 5
+        [54] = "^", -- 6
+        [55] = "&", -- 7
+        [56] = "*", -- 8
+        [57] = "("  -- 9
+    }
 
-    if glfw_punct[keycode] then
-        local ch = glfw_punct[keycode]
-        if shift_pressed and shifted_punct[ch] then
-            return shifted_punct[ch]
+    if ascii_val >= 48 and ascii_val <= 57 then
+        if shift then
+            return number_shift_map[ascii_val]
         else
-            return ch
+            return char
         end
     end
 
-    if keycode == GLFW_KEY_ENTER then
-        return '\n'
-    elseif keycode == GLFW_KEY_TAB then
-        return '\t'
-    elseif keycode == GLFW_KEY_BACKSPACE then
-        return '\b'
-    elseif keycode == GLFW_KEY_ESCAPE then
-        return '\27'
+    local special_shift_map = {
+        ["-"] = "_",
+        ["="] = "+",
+        ["["] = "{",
+        ["]"] = "}",
+        ["\\"] = "|",
+        [";"] = ":",
+        ["'"] = "\"",
+        [","] = "<",
+        ["."] = ">",
+        ["/"] = "?"
+    }
+
+    if shift and special_shift_map[char] then
+        return special_shift_map[char]
     end
 
-    return nil
+    return char
 end
 
-local function getInput()
+function _G.NexB.getInput()
     local inputBuffer = {}
 
     local shifting = false
     while true do
         local tobreak = false
-        local events = event.getEventQueue()
-        event.clearEventQueue()
+        local events = eventBuffer
+        eventBuffer = {}
         for _,v in ipairs(events) do
             if v[1] == "keyPressed" then
-                if v[2] and v[2] < 256 then NexB.writeScr(glfw2ascii(v[2], shifting)); table.insert(inputBuffer, glfw2ascii(v[2], shifting))
-                elseif v[2] == 340 then shifting = true
-                elseif v[2] == GLFW_KEY_ENTER then tobreak = true
-                elseif v[2] == GLFW_KEY_BACKSPACE then
+                local success, result = pcall(string.byte, v[3])
+                result = tonumber(result)
+                if v[2] and v[2] < 127 and v[2] > 31 then NexB.writeScr(asciiShift(result or v[2], shifting)); table.insert(inputBuffer, asciiShift(result or v[2], shifting))
+                elseif v[2] == 14 then shifting = true
+                elseif v[2] == 13 then tobreak = true
+                elseif v[2] == 8 then
                     if #inputBuffer > 0 then
                         table.remove(inputBuffer)
-                        screen.setColor(1,1,1)
+                        screen.setColor(0,0,0)
                         cursor_x = cursor_x - 8
 
                         local scr_w, _ = screen.getSize()
@@ -466,11 +397,11 @@ local function getInput()
                         end
 
                         screen.fill(cursor_x,cursor_y,cursor_x+8,cursor_y+8)
-                        screen.setColor(256,256,256)
+                        screen.setColor(255,255,255)
                     end
                 end
             elseif v[1] == "keyReleased" then
-                if v[2] == 340 then shifting = false end
+                if v[2] == 14 then shifting = false end
             end
         end
         if tobreak == true then break end
@@ -490,7 +421,7 @@ else -- chip.shutdown misbehaves sometimes, can't trust it to shut down before t
     local bootSelected = nil
     while true do
         NexB.writeScr(">")
-        local user_input = getInput()
+        local user_input = NexB.getInput()
         local success, result = pcall(tonumber, user_input)
         if success and result ~= nil and result <= #bootOptions then
             bootSelected = result
