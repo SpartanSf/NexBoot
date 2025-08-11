@@ -7,6 +7,8 @@ Its primary role is to initialize the system environment and load an operating s
 
 NexBoot currently supports system booting from the main system storage. Once disks for NeetComputers is released, additional disk booting capabilities will be available.
 
+To run NexBoot on a computer, simply copy `bios.lua`, `ibm.bdf`, `rectcache.lua` (optional but HIGHLY reccomended), and `serpent.lua` to your `bios` partition.
+
 To make your operating system bootable via NexBoot, you must provide a metadata file in the form of a Lua table. This file should be located at either:
 
 ```
@@ -18,6 +20,16 @@ or
 ```
 boot:meta.lua
 ```
+
+## APIs
+
+NexBoot currently provides 3 functions in the global table:
+
+`writeScr(str)`: Writes to the screen. Wraps
+
+`setCursorPos(x, y)`: Sets the cursor's position
+
+`getCursorPos()`: Returns the x and y cursor position
 
 ### Metadata File Structure
 
