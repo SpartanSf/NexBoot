@@ -1,6 +1,6 @@
 # NexBoot
 
-NexBoot is a lightweight yet capable bootloader designed for the NeetComputers platform.
+NexBoot is a capable bootloader designed for the NeetComputers platform.
 Its primary role is to initialize the system environment and load an operating system (OS) selected by the user or specified by configuration. NexBoot is engineered for simplicity, making it straightforward for developers to integrate their own operating systems into the Nex ecosystem.
 
 ## Usage
