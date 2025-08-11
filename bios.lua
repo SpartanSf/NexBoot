@@ -207,12 +207,14 @@ local function sleep(time)
     end
 end
 
-local cursor_x, cursor_y = 2, 8
+local cursor_x, cursor_y = 0,0
 local scr_x, _ = screen.getSize()
 
 screen.setColor(255, 255, 255)
 
 local function drawChar(start_x, baseline_y, encoding)
+    start_x = start_x + 1
+    baseline_y = baseline_y + 8
     local glyph = glyphs[encoding]
     if not glyph then return end
 
@@ -256,13 +258,13 @@ function _G.NexB.writeScr(str)
     for i = 1, #str do
         local c_char = str:sub(i, i)
         if c_char == "\n" then
-            cursor_x = 2
+            cursor_x = 0
             cursor_y = cursor_y + 8
         else
             drawChar(cursor_x, cursor_y, string.byte(c_char))
             cursor_x = cursor_x + 8
-            if cursor_x + 8 >= scr_x then
-                cursor_x = 2
+            if cursor_x >= scr_x then
+                cursor_x = 0
                 cursor_y = cursor_y + 8
             end
         end
@@ -448,11 +450,25 @@ local function getInput()
         event.clearEventQueue()
         for _,v in ipairs(events) do
             if v[1] == "keyPressed" then
-                if v[2] and v[2] < 256 then NexB.writeScr(glfw2ascii(v[2], shifting)); table.insert(inputBuffer, glfw2ascii(v[2], shifting)) end
-                if v[2] == 340 then
-                    shifting = true
+                if v[2] and v[2] < 256 then NexB.writeScr(glfw2ascii(v[2], shifting)); table.insert(inputBuffer, glfw2ascii(v[2], shifting))
+                elseif v[2] == 340 then shifting = true
+                elseif v[2] == GLFW_KEY_ENTER then tobreak = true
+                elseif v[2] == GLFW_KEY_BACKSPACE then
+                    if #inputBuffer > 0 then
+                        table.remove(inputBuffer)
+                        screen.setColor(1,1,1)
+                        cursor_x = cursor_x - 8
+
+                        local scr_w, _ = screen.getSize()
+                        if cursor_x < 0 then
+                            cursor_y = cursor_y - 8
+                            cursor_x = scr_w - 8
+                        end
+
+                        screen.fill(cursor_x,cursor_y,cursor_x+8,cursor_y+8)
+                        screen.setColor(256,256,256)
+                    end
                 end
-                if v[2] == GLFW_KEY_ENTER then tobreak = true end
             elseif v[1] == "keyReleased" then
                 if v[2] == 340 then shifting = false end
             end
