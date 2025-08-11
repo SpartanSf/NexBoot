@@ -21,16 +21,6 @@ or
 boot:meta.lua
 ```
 
-## APIs
-
-NexBoot currently provides 3 functions in the global table:
-
-`writeScr(str)`: Writes to the screen. Wraps
-
-`setCursorPos(x, y)`: Sets the cursor's position
-
-`getCursorPos()`: Returns the x and y cursor position
-
 ### Metadata File Structure
 
 The metadata file informs NexBoot of the essential details required to identify and launch your OS.
@@ -54,6 +44,16 @@ An example is shown below:
 
 When properly configured, the metadata file produces an entry in NexBoot’s menu, as shown below:
 <img width="399" height="27" alt="image" src="https://github.com/user-attachments/assets/5bf84d18-5111-426e-b212-a8c7a5f5f35e" />
+
+## APIs
+
+NexBoot currently provides 3 functions in the global table:
+
+`writeScr(str)`: Writes to the screen. Wraps
+
+`setCursorPos(x, y)`: Sets the cursor's position
+
+`getCursorPos()`: Returns the x and y cursor position
 
 ---
 
