@@ -49,11 +49,11 @@ When properly configured, the metadata file produces an entry in NexBoot’s men
 
 NexBoot currently provides 3 functions in the global table:
 
-`writeScr(str)`: Writes to the screen. Wraps
+`NexB.writeScr(str)`: Writes to the screen. Wraps
 
-`setCursorPos(x, y)`: Sets the cursor's position
+`NexB.setCursorPos(x, y)`: Sets the cursor's position
 
-`getCursorPos()`: Returns the x and y cursor position
+`NexB.getCursorPos()`: Returns the x and y cursor position
 
 ---
 
