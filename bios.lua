@@ -278,7 +278,7 @@ function _G.NexB.getCursorPos()
     return cursor_x, cursor_y
 end
 
-writeScr("NexBoot v0.1.0+0\n")
+NexB.writeScr("NexBoot v0.1.0+0\n")
 
 local bootOptions = {}
 
@@ -300,7 +300,7 @@ if fs.exists("boot:meta.lua") then
 end
 
 for i, bootOption in ipairs(bootOptions) do
-    writeScr(tostring(i)..") "..bootOption[1]..": "..bootOption[2].."\n")
+    NexB.writeScr(tostring(i)..") "..bootOption[1]..": "..bootOption[2].."\n")
 end
 
 
@@ -448,7 +448,7 @@ local function getInput()
         event.clearEventQueue()
         for _,v in ipairs(events) do
             if v[1] == "keyPressed" then
-                if v[2] and v[2] < 256 then writeScr(glfw2ascii(v[2], shifting)); table.insert(inputBuffer, glfw2ascii(v[2], shifting)) end
+                if v[2] and v[2] < 256 then NexB.writeScr(glfw2ascii(v[2], shifting)); table.insert(inputBuffer, glfw2ascii(v[2], shifting)) end
                 if v[2] == 340 then
                     shifting = true
                 end
@@ -463,24 +463,24 @@ local function getInput()
 end
 
 if #bootOptions == 0 then
-	writeScr("Could not find an operating system!\nShutting down in 3 seconds.")
+	NexB.writeScr("Could not find an operating system!\nShutting down in 3 seconds.")
     sleep(1)
-    writeScr(".")
+    NexB.writeScr(".")
     sleep(1)
-    writeScr(".")
+    NexB.writeScr(".")
     sleep(1)
     chip.shutdown()
 else -- chip.shutdown misbehaves sometimes, can't trust it to shut down before this gets executed
     local bootSelected = nil
     while true do
-        writeScr(">")
+        NexB.writeScr(">")
         local user_input = getInput()
         local success, result = pcall(tonumber, user_input)
         if success and result ~= nil and result <= #bootOptions then
             bootSelected = result
             break
         end
-        writeScr("\n")
+        NexB.writeScr("\n")
     end
 
     local entrypoint = fs.open(bootOptions[bootSelected][3], "r")
