@@ -250,8 +250,9 @@ local function drawChar(start_x, baseline_y, encoding)
     end
 end
 
+_G.NexB = {}
 
-function _G.writeScr(str)
+function _G.NexB.writeScr(str)
     for i = 1, #str do
         local c_char = str:sub(i, i)
         if c_char == "\n" then
@@ -269,8 +270,12 @@ function _G.writeScr(str)
     screen.draw()
 end
 
-function _G.setCursorPos(x, y)
+function _G.NexB.setCursorPos(x, y)
     cursor_x, cursor_y = x, y
+end
+
+function _G.NexB.getCursorPos()
+    return cursor_x, cursor_y
 end
 
 writeScr("NexBoot v0.1.0+0\n")
