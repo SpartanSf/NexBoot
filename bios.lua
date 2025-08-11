@@ -3,9 +3,9 @@ local useRectangles = true
 
 fs.createPartition("system")
 
-local binserFile = fs.open("bios:binser.lua", "r")
-local binser = load(binserFile.read("a"), "binser", "t", _ENV)()
-binserFile.close()
+local serpentFile = fs.open("bios:serpent.lua", "r")
+local serpent = load(serpentFile.read("a"), "serpent", "t", _ENV)()
+serpentFile.close()
 
 local function parse_bdf(filename)
     local glyphs = {}
@@ -173,13 +173,13 @@ local function buildRectangles(glyph)
 
     return out
 end
---[[
-if fs.exists("bios:rectCache.lua") then
-    local rectCacheFile = fs.open("bios:rectCache.lua","r")
-    rectCache, _ = binser.deserialize(rectCacheFile.read("a"))
+
+if fs.exists("bios:rectcache.lua") then
+    local rectCacheFile = fs.open("bios:rectcache.lua","r")
+    rectCache, _ = load(rectCacheFile.read("a"), "rectcache", "t", _ENV)()
     rectCacheFile.close()
 end
-]]
+
 local foundDiff = false
 if useRectangles then
     for code = 1, 255 do
@@ -191,14 +191,11 @@ if useRectangles then
     end
 end
 
---[[
-print(binser.serialize(rectCache))
 if foundDiff then
-    local rectCacheFile = fs.open("bios:rectCache.lua", "w")
-    rectCacheFile.write(binser.serialize(rectCache))
+    local rectCacheFile = fs.open("bios:rectcache.lua", "w")
+    rectCacheFile.write(serpent.dump(rectCache))
     rectCacheFile.close()
 end
-]]
 
 local function sleep(time)
     local t = chip.getTime()
@@ -270,6 +267,10 @@ function _G.writeScr(str)
         end
     end
     screen.draw()
+end
+
+function _G.setCursorPos(x, y)
+    cursor_x, cursor_y = x, y
 end
 
 writeScr("NexBoot v0.1.0+0\n")
@@ -484,4 +485,3 @@ else -- chip.shutdown misbehaves sometimes, can't trust it to shut down before t
     if err then print(err) end
     metaFunc()
 end
-
