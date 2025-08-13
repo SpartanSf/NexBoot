@@ -261,7 +261,9 @@ end
 
 _G.NexB = {}
 
-function _G.NexB.writeScr(str, fgColor, bgColor)
+local textQueue = {}
+
+local function internalWriteScr(str, fgColor, bgColor)
     for i = 1, #str do
         local c_char = str:sub(i, i)
         if c_char == "\n" then
@@ -282,6 +284,19 @@ function _G.NexB.writeScr(str, fgColor, bgColor)
             end
         end
     end
+
+    screen.draw()
+end
+
+function _G.NexB.writeScr(str, fgColor, bgColor)
+    table.insert(textQueue, {str, fgColor, bgColor})
+end
+
+function _G.NexB.flush()
+    for _,v in ipairs(textQueue) do
+        internalWriteScr(v[1], v[2], v[3])
+    end
+    textQueue = {}
 end
 
 function _G.NexB.setCursorPos(x, y)
@@ -292,7 +307,7 @@ function _G.NexB.getCursorPos()
     return cursor_x, cursor_y
 end
 
-NexB.writeScr("NexBoot v0.1.0+0\n")
+NexB.writeScr("NexBoot v0.1.1+0\n")
 
 local bootOptions = {}
 
@@ -300,7 +315,7 @@ if fs.exists("system:boot/meta.lua") then
     local metaFile = fs.open("system:boot/meta.lua", "r")
     local metaData = metaFile.read("a")
     metaFile.close()
-    local metaFunc, err = load("return "..metaData, "meta", "t", {})
+    local metaFunc, _ = load("return "..metaData, "meta", "t", {})
     local meta = metaFunc()
     table.insert(bootOptions, {meta.name, meta.version, meta.entrypoint})
 end
@@ -391,7 +406,7 @@ function _G.NexB.getInput()
         eventBuffer = {}
         for _,v in ipairs(events) do
             if v[1] == "keyPressed" then
-                local success, result = pcall(string.byte, v[3])
+                local _, result = pcall(string.byte, v[3])
                 result = tonumber(result)
                 if v[2] and v[2] < 127 and v[2] > 31 or v[2] == 9 then NexB.writeScr(asciiShift(result or v[2], shifting)); table.insert(inputBuffer, asciiShift(result or v[2], shifting))
                 elseif v[2] == 14 then shifting = true
@@ -412,7 +427,7 @@ function _G.NexB.getInput()
                         screen.setColor(255,255,255)
                     end
                 end
-                screen.draw()
+                NexB.flush()
             elseif v[1] == "keyReleased" then
                 if v[2] == 14 then shifting = false end
             end
@@ -422,24 +437,24 @@ function _G.NexB.getInput()
     return table.concat(inputBuffer)
 end
 
-screen.draw()
+NexB.flush()
 
 if #bootOptions == 0 then
 	NexB.writeScr("Could not find an operating system!\nShutting down in 3 seconds.")
-    screen.draw()
+    NexB.flush()
     sleep(1)
     NexB.writeScr(".")
-    screen.draw()
+    NexB.flush()
     sleep(1)
     NexB.writeScr(".")
-    screen.draw()
+    NexB.flush()
     sleep(1)
     chip.shutdown()
 else -- chip.shutdown misbehaves sometimes, can't trust it to shut down before this gets executed
     local bootSelected = nil
     while true do
         NexB.writeScr(">")
-        screen.draw()
+        NexB.flush()
         local user_input = NexB.getInput()
         local success, result = pcall(tonumber, user_input)
         if success and result ~= nil and result <= #bootOptions then
