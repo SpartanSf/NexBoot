@@ -47,13 +47,17 @@ When properly configured, the metadata file produces an entry in NexBoot’s men
 
 ## APIs
 
-NexBoot currently provides 3 functions in the global table:
+NexBoot currently provides 5 functions in the global table:
 
 `NexB.writeScr(str)`: Writes to the screen. Wraps
+
+`NexB.flush()`: Flushes the text queue to the screen
 
 `NexB.setCursorPos(x, y)`: Sets the cursor's position
 
 `NexB.getCursorPos()`: Returns the x and y cursor position
+
+`NexB.getInput()`: Gets user input
 
 ---
 
