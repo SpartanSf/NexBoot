@@ -1,4 +1,4 @@
-local fs = peripherals.locate("file system")
+_G.fs = peripherals.locate("file system")
 local useRectangles = true
 
 fs.createPartition("system")
@@ -212,6 +212,7 @@ local function sleep(time)
 end
 
 local cursor_x, cursor_y = 0,0
+local emulated_x, emulated_y = 0,0
 local scr_x, _ = screen.getSize()
 
 screen.setColor(255, 255, 255)
@@ -276,38 +277,57 @@ local function internalWriteScr(str, fgColor, bgColor)
                 cursor_y = cursor_y + 8
             end
         else
-            drawChar(cursor_x, cursor_y, string.byte(c_char), fgColor or {255, 255, 255}, bgColor or {0, 0, 0})
-            cursor_x = cursor_x + 8
             if cursor_x >= scr_x then
                 cursor_x = 0
                 cursor_y = cursor_y + 8
             end
+            drawChar(cursor_x, cursor_y, string.byte(c_char), fgColor or {255, 255, 255}, bgColor or {0, 0, 0})
+            cursor_x = cursor_x + 8
         end
     end
-
-    screen.draw()
 end
 
 function _G.NexB.writeScr(str, fgColor, bgColor)
     table.insert(textQueue, {str, fgColor, bgColor})
+    for i = 1, #str do
+        local c_char = str:sub(i, i)
+        if c_char == "\n" then
+            emulated_x = 0
+            emulated_y = emulated_y + 8
+        elseif c_char == "\t" then
+            emulated_x = emulated_x + 32
+            if emulated_x >= scr_x then
+                emulated_x = math.floor((emulated_x/8) - (scr_x/8)) * 8
+                emulated_y = emulated_y + 8
+            end
+        else
+            emulated_x = emulated_x + 8
+            if emulated_x >= scr_x then
+                emulated_x = 0
+                emulated_y = emulated_y + 8
+            end
+        end
+    end
 end
 
 function _G.NexB.flush()
     for _,v in ipairs(textQueue) do
         internalWriteScr(v[1], v[2], v[3])
     end
+    screen.draw()
     textQueue = {}
 end
 
 function _G.NexB.setCursorPos(x, y)
     cursor_x, cursor_y = x, y
+    emulated_x, emulated_y = x, y
 end
 
 function _G.NexB.getCursorPos()
-    return cursor_x, cursor_y
+    return emulated_x, emulated_y
 end
 
-NexB.writeScr("NexBoot v0.1.1+0\n")
+NexB.writeScr("NexBoot v0.1.0+0\n")
 
 local bootOptions = {}
 
