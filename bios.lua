@@ -327,7 +327,7 @@ function _G.NexB.getCursorPos()
     return emulated_x, emulated_y
 end
 
-NexB.writeScr("NexBoot v0.1.0+0\n")
+NexB.writeScr("NexBoot v0.2.0\n")
 
 local bootOptions = {}
 
@@ -500,3 +500,4 @@ else -- chip.shutdown misbehaves sometimes, can't trust it to shut down before t
     if err then print(err) end
     metaFunc()
 end
+
