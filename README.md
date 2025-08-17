@@ -63,9 +63,9 @@ NexBoot currently provides 5 functions in the global table:
 
 ## Contact
 
-* GitHub: `https://github.com/SpartanSf/NexCore`
-* Discord: `swoshswosh_01578`
-* Email: `swoshswosh@proton.me`
+* GitHub: `https://github.com/RedSoftware-US/NexBoot`
+* Discord: `red.software`
+* Email: `redsoftware-us@proton.me`
 
 ## License
 
